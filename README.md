@@ -1,7 +1,7 @@
-Fork 版本，学习使用。
-在 b7.3.0a上增加了很多log来了解具体逻辑。
-deployIK.sh 是本机脚本，可以编译ik、解压到plugin，重启ES。
-es-index.json 是创建测试索引的配置，用于 POST /_template/ik-test 的参数。
+Fork 版本，学习使用。  
+在 b7.3.0a上增加了很多log来了解具体逻辑。  
+deployIK.sh 是本机脚本，可以编译ik、解压到plugin，重启ES。  
+es-index.json 是创建测试索引的配置，用于 POST /_template/ik-test 的参数。  
 
 ----------
 
