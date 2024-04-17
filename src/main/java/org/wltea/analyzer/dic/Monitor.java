@@ -82,7 +82,7 @@ public class Monitor implements Runnable {
 
 				if (((response.getLastHeader("Last-Modified")!=null) && !response.getLastHeader("Last-Modified").getValue().equalsIgnoreCase(last_modified))
 						||((response.getLastHeader("ETag")!=null) && !response.getLastHeader("ETag").getValue().equalsIgnoreCase(eTags))) {
-
+					System.out.println("remote_ext_dict {} has been modified" + location);
 					// 远程词库有更新,需要重新加载词典，并修改last_modified,eTags
 					Dictionary.getSingleton().reLoadMainDict();
 					last_modified = response.getLastHeader("Last-Modified")==null?null:response.getLastHeader("Last-Modified").getValue();

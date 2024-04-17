@@ -58,7 +58,6 @@ import org.wltea.analyzer.cfg.Configuration;
 import org.apache.logging.log4j.Logger;
 import org.wltea.analyzer.help.ESPluginLoggerFactory;
 
-
 /**
  * 词典管理类,单子模式
  */
@@ -91,11 +90,11 @@ public class Dictionary {
 	private static final String PATH_DIC_PREP = "preposition.dic";
 	private static final String PATH_DIC_STOP = "stopword.dic";
 
-	private final static  String FILE_NAME = "IKAnalyzer.cfg.xml";
-	private final static  String EXT_DICT = "ext_dict";
-	private final static  String REMOTE_EXT_DICT = "remote_ext_dict";
-	private final static  String EXT_STOP = "ext_stopwords";
-	private final static  String REMOTE_EXT_STOP = "remote_ext_stopwords";
+	private final static String FILE_NAME = "IKAnalyzer.cfg.xml";
+	private final static String EXT_DICT = "ext_dict";
+	private final static String REMOTE_EXT_DICT = "remote_ext_dict";
+	private final static String EXT_STOP = "ext_stopwords";
+	private final static String REMOTE_EXT_STOP = "remote_ext_stopwords";
 
 	private Path conf_dir;
 	private Properties props;
@@ -124,18 +123,20 @@ public class Dictionary {
 		if (input != null) {
 			try {
 				props.loadFromXML(input);
+				logger.info("props loaded, REMOTE_EXT_DICT: {}", props.get(REMOTE_EXT_DICT));
 			} catch (IOException e) {
 				logger.error("ik-analyzer", e);
 			}
 		}
 	}
 
-	private String getProperty(String key){
-		if(props!=null){
+	private String getProperty(String key) {
+		if (props != null) {
 			return props.getProperty(key);
 		}
 		return null;
 	}
+
 	/**
 	 * 词典初始化 由于IK Analyzer的词典采用Dictionary类的静态方法进行词典初始化
 	 * 只有当Dictionary类被实际调用时，才会开始载入词典， 这将延长首次分词操作的时间 该方法提供了一个在应用加载阶段就初始化字典的手段
@@ -155,7 +156,7 @@ public class Dictionary {
 					singleton.loadPrepDict();
 					singleton.loadStopWordDict();
 
-					if(cfg.isEnableRemoteDict()){
+					if (cfg.isEnableRemoteDict()) {
 						// 建立监控线程
 						for (String location : singleton.getRemoteExtDictionarys()) {
 							// 10 秒是初始延迟可以修改的 60是间隔时间 单位秒
@@ -174,22 +175,25 @@ public class Dictionary {
 	private void walkFileTree(List<String> files, Path path) {
 		if (Files.isRegularFile(path)) {
 			files.add(path.toString());
-		} else if (Files.isDirectory(path)) try {
-			Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-					files.add(file.toString());
-					return FileVisitResult.CONTINUE;
-				}
-				@Override
-				public FileVisitResult visitFileFailed(Path file, IOException e) {
-					logger.error("[Ext Loading] listing files", e);
-					return FileVisitResult.CONTINUE;
-				}
-			});
-		} catch (IOException e) {
-			logger.error("[Ext Loading] listing files", e);
-		} else {
+		} else if (Files.isDirectory(path))
+			try {
+				Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+						files.add(file.toString());
+						return FileVisitResult.CONTINUE;
+					}
+
+					@Override
+					public FileVisitResult visitFileFailed(Path file, IOException e) {
+						logger.error("[Ext Loading] listing files", e);
+						return FileVisitResult.CONTINUE;
+					}
+				});
+			} catch (IOException e) {
+				logger.error("[Ext Loading] listing files", e);
+			}
+		else {
 			logger.warn("[Ext Loading] file not found: " + path);
 		}
 	}
@@ -204,13 +208,15 @@ public class Dictionary {
 					word = word.substring(1);
 				for (; word != null; word = br.readLine()) {
 					word = word.trim();
-					if (word.isEmpty()) continue;
+					if (word.isEmpty())
+						continue;
 					dict.fillSegment(word.toCharArray());
 				}
 			}
 		} catch (FileNotFoundException e) {
 			logger.error("ik-analyzer: " + name + " not found", e);
-			if (critical) throw new RuntimeException("ik-analyzer: " + name + " not found!!!", e);
+			if (critical)
+				throw new RuntimeException("ik-analyzer: " + name + " not found!!!", e);
 		} catch (IOException e) {
 			logger.error("ik-analyzer: " + name + " loading failed", e);
 		}
@@ -236,13 +242,13 @@ public class Dictionary {
 	private List<String> getRemoteExtDictionarys() {
 		List<String> remoteExtDictFiles = new ArrayList<String>(2);
 		String remoteExtDictCfg = getProperty(REMOTE_EXT_DICT);
-		if (remoteExtDictCfg != null) {
+		System.out.println("getRemoteExtDictionarys: " + remoteExtDictCfg);
 
+		if (remoteExtDictCfg != null) {
 			String[] filePaths = remoteExtDictCfg.split(";");
 			for (String filePath : filePaths) {
 				if (filePath != null && !"".equals(filePath.trim())) {
 					remoteExtDictFiles.add(filePath);
-
 				}
 			}
 		}
@@ -286,7 +292,6 @@ public class Dictionary {
 		return conf_dir.toAbsolutePath().toString();
 	}
 
-
 	/**
 	 * 获取词典单子实例
 	 * 
@@ -299,12 +304,11 @@ public class Dictionary {
 		return singleton;
 	}
 
-
 	/**
 	 * 批量加载新词条
 	 * 
 	 * @param words
-	 *            Collection<String>词条列表
+	 *              Collection<String>词条列表
 	 */
 	public void addWords(Collection<String> words) {
 		if (words != null) {
@@ -460,11 +464,11 @@ public class Dictionary {
 				String charset = "UTF-8";
 				// 获取编码，默认为utf-8
 				HttpEntity entity = response.getEntity();
-				if(entity!=null){
+				if (entity != null) {
 					Header contentType = entity.getContentType();
-					if(contentType!=null&&contentType.getValue()!=null){
+					if (contentType != null && contentType.getValue() != null) {
 						String typeValue = contentType.getValue();
-						if(typeValue!=null&&typeValue.contains("charset=")){
+						if (typeValue != null && typeValue.contains("charset=")) {
 							charset = typeValue.substring(typeValue.lastIndexOf("=") + 1);
 						}
 					}
@@ -479,7 +483,7 @@ public class Dictionary {
 						response.close();
 						return buffer;
 					}
-			}
+				}
 			}
 			response.close();
 		} catch (IllegalStateException | IOException e) {
